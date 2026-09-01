@@ -1,0 +1,10 @@
+---
+description: LangGraph node development and state transitions
+globs: app/graph/**/*.py
+---
+# LangGraph Standards
+
+- All graph nodes must accept `ResearchState` and return a `dict` updating specified state keys.
+- Nodes must be pure async functions (`async def node_name(state: ResearchState) -> dict`).
+- Branching logic must live in dedicated conditional edge functions in `app/graph/routing.py`.
+- Emit granular event models (`AgentEvent`) during node transitions to support SSE progress streaming.

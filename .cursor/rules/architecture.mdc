@@ -1,0 +1,20 @@
+---
+description: Core architectural patterns and coding invariants for the project
+globs: **/*.py
+---
+# Architectural Invariants
+
+1. **Deterministic Over Generative:**
+   - NEVER use an LLM to calculate financial metrics (growth %, margins, ROIC, debt/equity).
+   - Compute all metrics in deterministic Python (`app/graph/nodes/quant_analysis.py` or `app/tools/calculator.py`).
+   - The LLM only interprets validated, pre-calculated numbers.
+
+2. **Graph Concurrency (LangGraph):**
+   - Independent data gathering (SEC, Market Data, Web, RAG) must execute as concurrent graph branches (fan-out).
+   - Use checkpointing backed by PostgreSQL for state persistence and replayability.
+
+3. **Strict Type Contracts:**
+   - All state mutations and API inputs/outputs must be strictly typed using Pydantic v2 schemas (`app/api/schemas/` and `app/graph/state.py`).
+
+4. **Error Handling & Resilience:**
+   - External data fetching must implement backoff, retries via Tenacity, and graceful fallbacks. Never let unhandled API exceptions crash the state machine.

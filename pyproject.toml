@@ -1,3 +1,11 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+exclude = ["tests*", "docker*"]
+
 [project]
 name = "multi-agent-financial-analyst"
 version = "0.1.0"

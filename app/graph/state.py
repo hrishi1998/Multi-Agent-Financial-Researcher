@@ -1,14 +1,17 @@
 import operator
-from typing import Annotated, Dict, List, Optional, Any
-from typing_extensions import TypedDict
+from typing import Annotated, Any, Dict, List, Optional
+
 from pydantic import BaseModel
+from typing_extensions import TypedDict
+
 from app.api.schemas.events import AgentEvent
 from app.api.schemas.reports import (
-    RawMetric,
     CalculatedMetric,
+    Evidence,
     EvidenceItem,
-    ValidationResult,
+    RawMetric,
     ResearchReport,
+    ValidationResult,
 )
 
 
@@ -27,6 +30,9 @@ class ResearchState(TypedDict):
     user_query: str
     plan: Optional[ResearchPlan]
 
+    # Unified fan-in channel for concurrent researchers (SEC, market, web, RAG)
+    evidence: Annotated[List[Evidence], operator.add]
+
     # Concurrent Agent Outputs (Appended via operator.add reducer)
     raw_financial_data: Annotated[List[RawMetric], operator.add]
     market_data: Annotated[Dict[str, Any], operator.add]
@@ -39,6 +45,10 @@ class ResearchState(TypedDict):
     # Validation and Cyclic Controls
     validation_result: Optional[ValidationResult]
     retry_count: int
+    iteration_count: int
+    max_iterations: int
+    is_validated: bool
+    execution_trace: Annotated[List[Dict[str, Any]], operator.add]
 
     # Final Artifact & Event Bus
     final_report: Optional[ResearchReport]

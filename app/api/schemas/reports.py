@@ -1,5 +1,8 @@
 from datetime import datetime, timezone
-from typing import List, Optional, Dict
+from enum import Enum
+from typing import Dict, List, Optional
+from uuid import uuid4
+
 from pydantic import BaseModel, Field
 
 
@@ -20,6 +23,32 @@ class CalculatedMetric(BaseModel):
     previous_value: Optional[float] = None
     change_percentage: Optional[float] = None
     unit: str = "%"
+
+
+class SourceType(str, Enum):
+    FILING = "filing"
+    MARKET_API = "market_api"
+    NEWS = "news"
+    INTERNAL_DOCUMENT = "internal_document"
+
+
+class Evidence(BaseModel):
+    """Canonical evidence record returned by every concurrent researcher.
+
+    SEC, market, web, and RAG nodes emit `Evidence` items. LangGraph fans them
+    into `ResearchState.evidence` via `operator.add`, so downstream validators
+    can audit a single typed list instead of source-specific payloads.
+    """
+
+    evidence_id: str = Field(default_factory=lambda: str(uuid4()))
+    source: str
+    source_type: SourceType
+    reporting_period: Optional[str] = None
+    metric: Optional[str] = None
+    value: Optional[float] = None
+    raw_text: Optional[str] = None
+    claim: Optional[str] = None
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
 
 
 class EvidenceItem(BaseModel):
@@ -64,7 +93,8 @@ class ResearchReport(BaseModel):
 
     financial_metrics: Dict[str, float]
     derived_metrics: Dict[str, CalculatedMetric]
-    evidence_chain: List[EvidenceItem]
+    evidence: List[Evidence] = Field(default_factory=list)
+    evidence_chain: List[EvidenceItem] = Field(default_factory=list)
     validation_audit: ValidationResult
 
     aggregate_confidence_score: float = Field(ge=0.0, le=1.0)

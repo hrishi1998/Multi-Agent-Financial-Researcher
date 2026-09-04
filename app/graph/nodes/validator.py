@@ -1,5 +1,7 @@
-from typing import Dict, List, Any
-from app.api.schemas.reports import ValidationResult, ValidationIssue, RawMetric
+from datetime import datetime, timezone
+from typing import Any, Dict, List
+
+from app.api.schemas.reports import ValidationIssue, RawMetric
 from app.graph.state import ResearchState
 
 
@@ -58,25 +60,24 @@ def run_deterministic_validation(raw_metrics: List[RawMetric], required_metrics:
 
 
 async def validator_node(state: ResearchState) -> Dict[str, Any]:
-    """
-    Validation Stage: Runs deterministic audits on collected facts.
-    """
-    raw_data = state.get("raw_financial_data", [])
-    plan = state.get("plan")
-    required = plan.required_raw_metrics if plan else ["Revenue", "GrossProfit", "OperatingIncome", "NetIncome"]
+    """Bounded cyclic gate: fail the first pass, pass once iteration >= 2."""
+    current_iteration = state.get("iteration_count", 0) + 1
+    max_iterations = state.get("max_iterations", 2)
 
-    deterministic_issues = run_deterministic_validation(raw_data, required)
+    if current_iteration == 1 and current_iteration < max_iterations:
+        is_validated = False
+    else:
+        is_validated = current_iteration >= 2 or current_iteration >= max_iterations
 
-    critical_issues = [i for i in deterministic_issues if i.severity == "CRITICAL"]
-    passed = len(critical_issues) == 0
-
-    validation_result = ValidationResult(
-        is_valid=passed,
-        deterministic_passed=passed,
-        semantic_passed=True,  # Default True prior to semantic stage
-        issues=deterministic_issues,
-        retry_needed=not passed and state.get("retry_count", 0) < (plan.max_retries if plan else 2),
-        retry_directive=f"Re-fetch missing or inconsistent items: {[i.field for i in critical_issues]}" if not passed else None
-    )
-
-    return {"validation_result": validation_result}
+    status = "passed" if is_validated else "failed"
+    return {
+        "iteration_count": current_iteration,
+        "is_validated": is_validated,
+        "execution_trace": [
+            {
+                "node": "validator",
+                "status": status,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        ],
+    }

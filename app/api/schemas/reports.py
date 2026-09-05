@@ -48,6 +48,8 @@ class Evidence(BaseModel):
     value: Optional[float] = None
     raw_text: Optional[str] = None
     claim: Optional[str] = None
+    temporal_anchor: Optional[str] = None
+    source_url: Optional[str] = None
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
 
 

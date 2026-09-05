@@ -5,6 +5,7 @@ from app.rag.schemas import DocumentMetadata
 from app.tools.market_data import MarketQuote
 from app.tools.rag import RAGRetrieverTool, set_rag_tool
 from app.tools.sec import SECClient
+from app.tools.web_search import WebSearchClient
 
 
 @pytest.fixture(autouse=True)
@@ -45,6 +46,16 @@ def mock_live_research_clients(monkeypatch: pytest.MonkeyPatch) -> None:
             ),
         ]
 
+    async def _fake_news(self, ticker: str, query: str, max_results: int = 3):
+        return [
+            {
+                "title": "Street narrative centers on data-center demand",
+                "url": "https://example.com/news",
+                "snippet": f"{ticker} data-center demand remains the primary growth driver.",
+                "published_date": "2025-08-01",
+            }
+        ]
+
     async def _fake_quote(self, ticker: str) -> MarketQuote:
         return MarketQuote(
             ticker=ticker,
@@ -56,3 +67,4 @@ def mock_live_research_clients(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(SECClient, "get_quarterly_financials", _fake_financials)
     monkeypatch.setattr("app.tools.market_data.MarketDataClient.fetch_quote", _fake_quote)
+    monkeypatch.setattr(WebSearchClient, "search_company_news", _fake_news)

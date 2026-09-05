@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List
 
 from app.api.schemas.reports import ValidationIssue, RawMetric
+from app.graph.quality import missing_source_warnings
 from app.graph.state import ResearchState
 
 
@@ -70,6 +71,9 @@ async def validator_node(state: ResearchState) -> Dict[str, Any]:
         is_validated = current_iteration >= 2 or current_iteration >= max_iterations
 
     status = "passed" if is_validated else "failed"
+    warnings = missing_source_warnings(state.get("evidence") or [])
+    if is_validated and warnings:
+        status = "warning"
     return {
         "iteration_count": current_iteration,
         "is_validated": is_validated,
@@ -77,6 +81,7 @@ async def validator_node(state: ResearchState) -> Dict[str, Any]:
             {
                 "node": "validator",
                 "status": status,
+                "warnings": warnings,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         ],

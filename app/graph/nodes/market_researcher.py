@@ -5,6 +5,7 @@ import httpx
 
 from app.api.schemas.reports import Evidence, SourceType
 from app.graph.state import ResearchState
+from app.infrastructure.http.resilience import NonRetryableError, resilient_request
 from app.tools.market_data import MarketDataClient, MarketQuote
 
 
@@ -38,7 +39,12 @@ async def market_researcher_node(state: ResearchState) -> Dict[str, Any]:
 
     try:
         client = MarketDataClient()
-        quote = await client.fetch_quote(ticker)
+        quote = await resilient_request(
+            "market_data",
+            client.fetch_quote,
+            ticker,
+            timeout=5.0,
+        )
         evidence = _quote_to_evidence(ticker, quote)
         return {
             "evidence": evidence,
@@ -51,7 +57,7 @@ async def market_researcher_node(state: ResearchState) -> Dict[str, Any]:
                 }
             ],
         }
-    except (httpx.HTTPError, Exception) as exc:
+    except (NonRetryableError, httpx.HTTPError, Exception) as exc:
         return {
             "evidence": [],
             "execution_trace": [

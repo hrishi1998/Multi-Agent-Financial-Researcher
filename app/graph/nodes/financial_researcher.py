@@ -5,6 +5,7 @@ import httpx
 
 from app.api.schemas.reports import Evidence, RawMetric, SourceType
 from app.graph.state import ResearchState
+from app.infrastructure.http.resilience import NonRetryableError, resilient_request
 from app.tools.sec import SECClient
 
 
@@ -29,8 +30,12 @@ async def financial_researcher_node(state: ResearchState) -> Dict[str, Any]:
 
     try:
         client = SECClient()
-        raw_metrics: List[RawMetric] = await client.get_quarterly_financials(
-            ticker, periods_count=max(periods_count, 1)
+        raw_metrics: List[RawMetric] = await resilient_request(
+            "sec",
+            client.get_quarterly_financials,
+            ticker,
+            periods_count=max(periods_count, 1),
+            timeout=15.0,
         )
         if required:
             raw_metrics = [metric for metric in raw_metrics if metric.name in required]
@@ -46,7 +51,7 @@ async def financial_researcher_node(state: ResearchState) -> Dict[str, Any]:
                 }
             ],
         }
-    except (httpx.HTTPError, Exception) as exc:
+    except (NonRetryableError, httpx.HTTPError, Exception) as exc:
         return {
             "evidence": [],
             "execution_trace": [

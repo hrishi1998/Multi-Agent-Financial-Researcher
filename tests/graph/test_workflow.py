@@ -24,7 +24,7 @@ async def test_compiled_graph_fans_out_and_aggregates_evidence():
     assert {item.source for item in result["evidence"]} == {
         "SEC EDGAR",
         "Yahoo Finance",
-        "Reuters",
+        "Web / News",
         "Internal RAG / Filings Archive",
     }
     financial_metrics = {

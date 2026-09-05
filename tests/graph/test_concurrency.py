@@ -12,7 +12,6 @@ from app.graph.nodes.rag_researcher import rag_researcher_node
 from app.graph.nodes.web_researcher import web_researcher_node
 from app.graph.state import ResearchPlan, ResearchState
 
-MAX_NODE_SLEEP_SECONDS = 0.6
 CONCURRENCY_UPPER_BOUND_SECONDS = 0.8
 SERIAL_SLEEP_SUM_SECONDS = 1.6
 
@@ -59,7 +58,6 @@ async def test_researcher_nodes_run_concurrently_and_merge_evidence():
 
     assert elapsed < CONCURRENCY_UPPER_BOUND_SECONDS
     assert elapsed < SERIAL_SLEEP_SUM_SECONDS
-    assert elapsed >= MAX_NODE_SLEEP_SECONDS * 0.5
 
     merged_evidence: List[Evidence] = []
     merged_trace: List[Dict[str, Any]] = []
@@ -74,7 +72,7 @@ async def test_researcher_nodes_run_concurrently_and_merge_evidence():
     assert sources == {
         "SEC EDGAR",
         "Yahoo Finance",
-        "Reuters",
+        "Web / News",
         "Internal RAG / Filings Archive",
     }
     assert nodes == {

@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict
 
 from app.api.schemas.reports import ResearchReport, ValidationResult
+from app.graph.quality import missing_source_warnings
 from app.graph.state import ResearchState
 
 
@@ -62,7 +63,7 @@ async def formatter_node(state: ResearchState) -> Dict[str, Any]:
                 semantic_passed=True,
             ),
             "aggregate_confidence_score": 0.85,
-            "data_quality_warnings": [],
+            "data_quality_warnings": missing_source_warnings(evidence),
         }
     )
 

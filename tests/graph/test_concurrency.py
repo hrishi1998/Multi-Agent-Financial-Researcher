@@ -75,7 +75,7 @@ async def test_researcher_nodes_run_concurrently_and_merge_evidence():
         "SEC EDGAR",
         "Yahoo Finance",
         "Reuters",
-        "Internal Research Memo",
+        "Internal RAG / Filings Archive",
     }
     assert nodes == {
         "financial_researcher",

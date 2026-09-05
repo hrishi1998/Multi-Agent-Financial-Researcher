@@ -1,6 +1,7 @@
-from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph
 from langgraph.graph.state import CompiledStateGraph
+
+from app.memory.short_term import get_checkpointer
 
 from app.graph.nodes.financial_researcher import financial_researcher_node
 from app.graph.nodes.formatter import formatter_node
@@ -52,8 +53,7 @@ def build_research_graph() -> CompiledStateGraph:
     workflow.add_edge("synthesizer", "formatter")
     workflow.add_edge("formatter", END)
 
-    memory = MemorySaver()
-    return workflow.compile(checkpointer=memory)
+    return workflow.compile(checkpointer=get_checkpointer())
 
 
 graph = build_research_graph()

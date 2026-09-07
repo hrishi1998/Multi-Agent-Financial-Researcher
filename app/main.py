@@ -4,13 +4,20 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.research import router as research_router
+from app.graph.workflow import rebuild_graph
+from app.memory.short_term import setup_checkpointer, teardown_checkpointer
+from app.persistence.database import dispose_engine
 from app.services.run_manager import run_manager
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await setup_checkpointer()
+    rebuild_graph()
     app.state.run_manager = run_manager
     yield
+    await teardown_checkpointer()
+    await dispose_engine()
 
 
 app = FastAPI(

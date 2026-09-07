@@ -1,8 +1,6 @@
 from langgraph.graph import END, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
-from app.memory.short_term import get_checkpointer
-
 from app.graph.nodes.financial_researcher import financial_researcher_node
 from app.graph.nodes.formatter import formatter_node
 from app.graph.nodes.market_researcher import market_researcher_node
@@ -14,6 +12,7 @@ from app.graph.nodes.validator import validator_node
 from app.graph.nodes.web_researcher import web_researcher_node
 from app.graph.routing import route_after_validation
 from app.graph.state import ResearchState
+from app.memory.short_term import get_checkpointer
 
 RESEARCHER_NODES = (
     "financial_researcher",
@@ -56,4 +55,21 @@ def build_research_graph() -> CompiledStateGraph:
     return workflow.compile(checkpointer=get_checkpointer())
 
 
-graph = build_research_graph()
+_compiled_graph: CompiledStateGraph | None = None
+
+
+def get_compiled_graph() -> CompiledStateGraph:
+    global _compiled_graph
+    if _compiled_graph is None:
+        _compiled_graph = build_research_graph()
+    return _compiled_graph
+
+
+def rebuild_graph() -> CompiledStateGraph:
+    global _compiled_graph, graph
+    _compiled_graph = build_research_graph()
+    graph = _compiled_graph
+    return _compiled_graph
+
+
+graph = get_compiled_graph()

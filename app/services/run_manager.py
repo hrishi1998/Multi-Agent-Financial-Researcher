@@ -4,7 +4,9 @@ from typing import Any, AsyncGenerator, Dict, Optional
 from uuid import uuid4
 
 from app.api.schemas.events import AgentEvent, EventType
-from app.graph.workflow import graph as compiled_graph
+from app.api.schemas.reports import ResearchReport
+from app.graph.workflow import get_compiled_graph
+from app.memory.long_term import get_research_memory
 from app.services.event_adapter import lifecycle_event, map_node_update
 
 _TERMINAL = {"completed", "failed", "cancelled"}
@@ -19,9 +21,12 @@ class ResearchRunManager:
     """Coordinates background graph runs and typed SSE event queues."""
 
     def __init__(self, compiled=None) -> None:
-        self._graph = compiled or compiled_graph
+        self._explicit_graph = compiled
         self._runs: Dict[str, Dict[str, Any]] = {}
         self._lock = asyncio.Lock()
+
+    def _graph(self):
+        return self._explicit_graph or get_compiled_graph()
 
     async def start_research_run(self, user_query: str) -> str:
         run_id = str(uuid4())
@@ -117,7 +122,8 @@ class ResearchRunManager:
             "is_validated": False,
         }
         try:
-            async for update in self._graph.astream(
+            graph = self._graph()
+            async for update in graph.astream(
                 inputs, config, stream_mode="updates"
             ):
                 if record["cancel_event"].is_set():
@@ -130,9 +136,10 @@ class ResearchRunManager:
                     )
                     await self._publish(run_id, event)
 
-            snapshot = self._graph.get_state(config)
+            snapshot = graph.get_state(config)
             record["final_report"] = snapshot.values.get("final_report")
             record["status"] = "completed"
+            await self._archive_report(record["final_report"])
             await self._publish(
                 run_id,
                 lifecycle_event(
@@ -167,6 +174,19 @@ class ResearchRunManager:
                     payload={"error": str(exc)},
                 ),
             )
+
+    async def _archive_report(self, report: Any) -> None:
+        if report is None:
+            return
+        try:
+            validated = (
+                report
+                if isinstance(report, ResearchReport)
+                else ResearchReport.model_validate(report)
+            )
+            await get_research_memory().save_report(validated)
+        except Exception:
+            return
 
     async def _publish(self, run_id: str, event: AgentEvent) -> None:
         record = self._runs[run_id]

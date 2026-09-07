@@ -51,5 +51,6 @@ class ResearchState(TypedDict):
     execution_trace: Annotated[List[Dict[str, Any]], operator.add]
 
     # Final Artifact & Event Bus
+    raw_synthesis: Optional[Any]
     final_report: Optional[ResearchReport]
     events: Annotated[List[AgentEvent], operator.add]

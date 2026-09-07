@@ -41,3 +41,6 @@ htmlcov/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local study notes (not part of the product)
+markdown-knowledge/

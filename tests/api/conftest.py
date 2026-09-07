@@ -1,4 +1,8 @@
+import os
+
 import pytest
+
+os.environ["LLM_PROVIDER"] = "mock"
 
 from app.api.schemas.reports import RawMetric
 from app.rag.schemas import DocumentMetadata
@@ -40,6 +44,18 @@ def mock_live_research_clients(monkeypatch: pytest.MonkeyPatch) -> None:
                 name="GrossProfit",
                 period="Q3-2025",
                 value=26_090_000_000.0,
+                source_filing="10-Q",
+            ),
+            RawMetric(
+                name="OperatingIncome",
+                period="Q3-2025",
+                value=19_310_000_000.0,
+                source_filing="10-Q",
+            ),
+            RawMetric(
+                name="NetIncome",
+                period="Q3-2025",
+                value=16_250_000_000.0,
                 source_filing="10-Q",
             ),
         ]

@@ -1,9 +1,10 @@
 import asyncio
 from typing import Any, AsyncGenerator, Dict
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sse_starlette.sse import EventSourceResponse
 
+from app.api.dependencies import verify_api_key
 from app.api.schemas.requests import (
     ResearchCreateRequest,
     ResearchRunAcceptedResponse,
@@ -11,7 +12,11 @@ from app.api.schemas.requests import (
 )
 from app.services.run_manager import ResearchRunManager, run_manager
 
-router = APIRouter(prefix="/research", tags=["research"])
+router = APIRouter(
+    prefix="/research",
+    tags=["research"],
+    dependencies=[Depends(verify_api_key)],
+)
 
 
 def _manager(request: Request) -> ResearchRunManager:

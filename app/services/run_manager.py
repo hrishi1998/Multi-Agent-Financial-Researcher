@@ -1,4 +1,5 @@
 import asyncio
+import re
 from datetime import datetime, timezone
 from typing import Any, AsyncGenerator, Dict, Optional
 from uuid import uuid4
@@ -9,6 +10,7 @@ from app.graph.workflow import get_compiled_graph
 from app.memory.long_term import get_research_memory
 from app.services.event_adapter import lifecycle_event, map_node_update
 
+_TICKER_RE = re.compile(r"\b([A-Z]{2,5})\b")
 _TERMINAL = {"completed", "failed", "cancelled"}
 _TERMINAL_EVENTS = {
     EventType.RUN_COMPLETED,
@@ -111,9 +113,21 @@ class ResearchRunManager:
         )
         return True
 
+    def _langsmith_config(self, run_id: str, user_query: str, thread_id: str) -> Dict[str, Any]:
+        ticker_match = _TICKER_RE.search(user_query or "")
+        metadata: Dict[str, Any] = {"run_id": run_id, "query": user_query}
+        if ticker_match:
+            metadata["ticker"] = ticker_match.group(1)
+        return {
+            "configurable": {"thread_id": thread_id},
+            "run_name": "Financial_Research_Run",
+            "metadata": metadata,
+            "tags": ["financial-research"],
+        }
+
     async def _execute(self, run_id: str, user_query: str) -> None:
         record = self._runs[run_id]
-        config = {"configurable": {"thread_id": record["thread_id"]}}
+        config = self._langsmith_config(run_id, user_query, record["thread_id"])
         inputs = {
             "user_query": user_query,
             "run_id": run_id,

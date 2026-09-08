@@ -5,10 +5,16 @@ from app.persistence.database import (
     psycopg_url,
     sqlalchemy_url,
 )
-from app.persistence.models import Base, DocumentChunkTable, ResearchReportTable
+from app.persistence.models import (
+    Base,
+    CachedQueryTable,
+    DocumentChunkTable,
+    ResearchReportTable,
+)
 
 __all__ = [
     "Base",
+    "CachedQueryTable",
     "DocumentChunkTable",
     "ResearchReportTable",
     "dispose_engine",

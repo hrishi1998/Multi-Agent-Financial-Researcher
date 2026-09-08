@@ -39,6 +39,17 @@ class DocumentChunkTable(Base):
     embedding = mapped_column(_VECTOR)
 
 
+class CachedQueryTable(Base):
+    __tablename__ = "cached_queries"
+
+    id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4())
+    )
+    query_text: Mapped[str] = mapped_column(Text)
+    query_embedding = mapped_column(_VECTOR)
+    report_json: Mapped[dict] = mapped_column(JSONB)
+
+
 class ResearchReportTable(Base):
     __tablename__ = "research_reports"
 

@@ -11,6 +11,7 @@ from app.infrastructure.observability.telemetry import configure_langsmith
 from app.memory.short_term import setup_checkpointer, teardown_checkpointer
 from app.persistence.database import dispose_engine
 from app.services.run_manager import run_manager
+from app.services.run_store import close_redis_client
 
 
 @asynccontextmanager
@@ -21,6 +22,7 @@ async def lifespan(app: FastAPI):
     yield
     await teardown_checkpointer()
     await dispose_engine()
+    await close_redis_client()
 
 
 configure_langsmith()

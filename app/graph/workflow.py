@@ -1,3 +1,5 @@
+import os
+
 from langgraph.graph import END, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
@@ -52,7 +54,11 @@ def build_research_graph() -> CompiledStateGraph:
     workflow.add_edge("synthesizer", "formatter")
     workflow.add_edge("formatter", END)
 
-    return workflow.compile(checkpointer=get_checkpointer())
+    interrupt_before = ["synthesizer"] if os.getenv("ENABLE_HITL") == "1" else []
+    return workflow.compile(
+        checkpointer=get_checkpointer(),
+        interrupt_before=interrupt_before,
+    )
 
 
 _compiled_graph: CompiledStateGraph | None = None

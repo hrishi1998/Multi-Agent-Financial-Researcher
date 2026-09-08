@@ -1,8 +1,9 @@
+import uuid
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict
+
 from pydantic import BaseModel, Field
-import uuid
 
 
 class EventType(str, Enum):
@@ -11,6 +12,9 @@ class EventType(str, Enum):
     RUN_COMPLETED = "run.completed"
     RUN_FAILED = "run.failed"
     RUN_CANCELLED = "run.cancelled"
+    CACHE_HIT = "cache.hit"
+    HITL_PAUSED = "hitl.paused"
+    HITL_RESUMED = "hitl.resumed"
 
     # Planner
     PLANNER_STARTED = "planner.started"

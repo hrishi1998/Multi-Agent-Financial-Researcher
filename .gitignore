@@ -44,3 +44,12 @@ Thumbs.db
 
 # Local study notes (not part of the product)
 markdown-knowledge/
+
+# Locust benchmark artifacts
+benchmark_results*.csv
+benchmark_results*.html
+benchmark_results_stats.html
+benchmark_results_stats_history.csv
+benchmark_results_failures.csv
+benchmark_results_exceptions.csv
+

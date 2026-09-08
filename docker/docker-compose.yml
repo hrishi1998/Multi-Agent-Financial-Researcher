@@ -5,9 +5,23 @@ services:
       dockerfile: docker/Dockerfile
     ports:
       - "8000:8000"
+    command:
+      [
+        "uvicorn",
+        "app.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--workers",
+        "4",
+      ]
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/quant_research
+      REDIS_URL: redis://redis:6379/0
       USE_PGVECTOR: "1"
+      ENABLE_HITL: "1"
+      ENABLE_SEMANTIC_CACHE: "1"
       VECTOR_DIM: "64"
       LLM_PROVIDER: ${LLM_PROVIDER:-mock}
       API_KEY: ${API_KEY:-}
@@ -20,6 +34,8 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   postgres:
@@ -36,6 +52,16 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres -d quant_research"]
       interval: 5s
       timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
       retries: 10
 
 volumes:

@@ -64,5 +64,5 @@ select = ["E", "F", "I", "B", "UP"]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 markers = [
-    "integration: live external API or Postgres persistence tests",
+    "integration: live external API, Postgres, or Redis persistence tests",
 ]

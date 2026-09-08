@@ -7,6 +7,8 @@ from sse_starlette.sse import EventSourceResponse
 from app.api.dependencies import verify_api_key
 from app.api.schemas.requests import (
     ResearchCreateRequest,
+    ResearchPausedStateResponse,
+    ResearchResumeRequest,
     ResearchRunAcceptedResponse,
     ResearchRunStatusResponse,
 )
@@ -64,6 +66,32 @@ async def stream_research(run_id: str, request: Request):
             return
 
     return EventSourceResponse(event_publisher())
+
+
+@router.get("/{run_id}/state", response_model=ResearchPausedStateResponse)
+async def get_research_state(run_id: str, request: Request):
+    state = await _manager(request).get_paused_state(run_id)
+    if state is None:
+        raise HTTPException(status_code=404, detail="Research run not found.")
+    return ResearchPausedStateResponse.model_validate(state)
+
+
+@router.post("/{run_id}/resume")
+async def resume_research(
+    run_id: str,
+    request: Request,
+    payload: ResearchResumeRequest | None = None,
+):
+    manager = _manager(request)
+    if await manager.get_run_status(run_id) is None:
+        raise HTTPException(status_code=404, detail="Research run not found.")
+    updates = {}
+    if payload and payload.evidence is not None:
+        updates["evidence"] = payload.evidence
+    resumed = await manager.resume_run(run_id, updates or None)
+    if not resumed:
+        raise HTTPException(status_code=409, detail="Research run cannot be resumed.")
+    return {"run_id": run_id, "status": "running", "resumed": True}
 
 
 @router.post("/{run_id}/cancel")

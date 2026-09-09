@@ -36,15 +36,26 @@ async def quant_analysis_node(state: ResearchState) -> Dict[str, Any]:
     revenue: Optional[float] = by_metric.get("Revenue")
     gross_profit: Optional[float] = by_metric.get("GrossProfit")
 
+    operating_income: Optional[float] = by_metric.get("OperatingIncome")
+
     if revenue is not None and gross_profit is not None:
         margin = calculate_margin(gross_profit, revenue)
-        calculated["Mock_Margin"] = CalculatedMetric(
+        gross = CalculatedMetric(
             name="Gross Margin",
             formula="(Gross Profit / Revenue) * 100",
             current_value=margin,
             unit="%",
         )
-    elif quantitative:
+        calculated["Mock_Margin"] = gross
+        calculated["GrossMargin"] = gross
+    if revenue is not None and operating_income is not None:
+        calculated["OperatingMargin"] = CalculatedMetric(
+            name="Operating Margin",
+            formula="(Operating Income / Revenue) * 100",
+            current_value=calculate_margin(operating_income, revenue),
+            unit="%",
+        )
+    if not calculated and quantitative:
         first = quantitative[0]
         calculated["Mock_Margin"] = CalculatedMetric(
             name="Stub Coverage Ratio",

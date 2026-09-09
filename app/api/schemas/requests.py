@@ -6,6 +6,20 @@ from pydantic import BaseModel, Field
 from app.api.schemas.reports import Evidence, ResearchReport, ValidationResult
 
 
+class BatchCreateRequest(BaseModel):
+    tickers: List[str] = Field(..., min_length=1)
+    query_template: str = Field(
+        default="Evaluate the financial performance of {ticker} over the last 4 quarters"
+    )
+    output_dir: str = "outputs/"
+
+
+class BatchAcceptedResponse(BaseModel):
+    batch_id: str
+    status: str = "accepted"
+    tickers: List[str]
+
+
 class ResearchCreateRequest(BaseModel):
     query: str = Field(
         ...,

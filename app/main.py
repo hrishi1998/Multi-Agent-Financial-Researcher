@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes.batch import router as batch_router
 from app.api.routes.health import router as health_router
 from app.api.routes.research import router as research_router
 from app.graph.workflow import rebuild_graph
@@ -40,6 +41,7 @@ app.add_middleware(
 )
 app.include_router(health_router)
 app.include_router(research_router, prefix="/api/v1")
+app.include_router(batch_router, prefix="/api/v1")
 
 if os.getenv("ENABLE_TELEMETRY") == "1":
     from app.infrastructure.observability.telemetry import setup_telemetry

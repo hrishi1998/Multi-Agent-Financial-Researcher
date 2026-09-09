@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Iterable
+from collections.abc import Iterable
 
 from pydantic import BaseModel, Field
 
@@ -118,7 +118,8 @@ class CitationFaithfulnessEvaluator:
         cited = 0
         uncited: list[str] = []
         faithfulness_scores: list[float] = []
-        use_heuristic = os.getenv("LLM_PROVIDER", "mock") == "mock" or not os.getenv("OPENAI_API_KEY")
+        offline = os.getenv("LLM_PROVIDER", "mock") == "mock"
+        use_heuristic = offline or not os.getenv("OPENAI_API_KEY")
         for claim in claims:
             mentioned = {item.lower() for item in _UUID.findall(claim)}
             if mentioned:

@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from decimal import Decimal
-from typing import Iterable
 
 from pydantic import BaseModel, Field
 
@@ -60,9 +60,8 @@ class NumericalAccuracyEvaluator:
             if actual is None:
                 actual = derived.get(_normalize(name))
             if actual is None or not _within_tolerance(actual, expected):
-                mismatches.append(
-                    f"{name}: expected {expected}, got {actual if actual is not None else 'missing'}"
-                )
+                observed = actual if actual is not None else "missing"
+                mismatches.append(f"{name}: expected {expected}, got {observed}")
             else:
                 matching += 1
 

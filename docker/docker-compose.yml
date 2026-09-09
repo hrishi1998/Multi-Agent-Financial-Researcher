@@ -38,6 +38,18 @@ services:
       redis:
         condition: service_healthy
 
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      API_BASE_URL: http://api:8000
+      API_KEY: ${API_KEY:-}
+    depends_on:
+      - api
+
   postgres:
     image: pgvector/pgvector:pg16
     ports:

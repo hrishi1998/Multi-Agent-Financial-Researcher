@@ -1,0 +1,4 @@
+# Convenience entrypoint from the repo root.
+# Service definitions live in docker/docker-compose.yml.
+include:
+  - path: docker/docker-compose.yml

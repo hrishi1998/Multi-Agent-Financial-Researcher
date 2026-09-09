@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "cases": [
+    {
+      "case_id": "nvda-fy2025-q3",
+      "ticker": "NVDA",
+      "company_name": "NVIDIA Corporation",
+      "analysis_period": "Q3-2025",
+      "query": "Evaluate NVDA Q3-2025 profitability and revenue",
+      "canonical_metrics": {
+        "Revenue": 35082000000.0,
+        "GrossProfit": 26090000000.0,
+        "OperatingIncome": 19310000000.0,
+        "NetIncome": 16250000000.0
+      },
+      "canonical_derived": {
+        "GrossMargin": 74.37,
+        "OperatingMargin": 55.04
+      },
+      "known_facts": [
+        "Data Center revenue represented over 80% of total revenue",
+        "Gross margin expanded on Hopper/Blackwell mix"
+      ]
+    },
+    {
+      "case_id": "aapl-fy2024-q4",
+      "ticker": "AAPL",
+      "company_name": "Apple Inc.",
+      "analysis_period": "Q4-2024",
+      "query": "Evaluate AAPL Q4-2024 profitability and revenue",
+      "canonical_metrics": {
+        "Revenue": 94930000000.0,
+        "GrossProfit": 43881000000.0,
+        "OperatingIncome": 29614000000.0,
+        "NetIncome": 14736000000.0
+      },
+      "canonical_derived": {
+        "GrossMargin": 46.22,
+        "OperatingMargin": 31.2
+      },
+      "known_facts": [
+        "Services revenue remained a primary mix and margin driver",
+        "iPhone was the largest product revenue line in the September quarter"
+      ]
+    }
+  ]
+}

@@ -23,7 +23,9 @@ from app.evaluation.runner import (  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Benchmark the research graph against SEC ground truth.")
+    parser = argparse.ArgumentParser(
+        description="Benchmark the research graph against SEC ground truth."
+    )
     parser.add_argument(
         "--dataset",
         default=None,

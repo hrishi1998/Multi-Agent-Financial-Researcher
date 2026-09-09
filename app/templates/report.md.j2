@@ -1,0 +1,106 @@
+# {{ report.company_name }} ({{ report.ticker }}) — {{ report.analysis_period }}
+
+| Field | Value |
+|---|---|
+| Run ID | `{{ report.run_id }}` |
+| Generated | {{ report.generated_at }} |
+| Aggregate confidence | {{ "%.2f"|format(report.aggregate_confidence_score) }} |
+| Validation | {{ "passed" if report.validation_audit.is_valid else "failed" }} |
+
+---
+
+## Executive Summary
+
+{{ report.executive_conclusion }}
+
+## Key Findings
+
+{% if report.key_findings %}
+{% for finding in report.key_findings -%}
+- {{ finding }}
+{% endfor %}
+{% else %}
+_No key findings recorded._
+{% endif %}
+
+## Bull Case
+
+{% if report.bull_case %}
+{% for item in report.bull_case -%}
+- {{ item }}
+{% endfor %}
+{% else %}
+_No bull-case points recorded._
+{% endif %}
+
+## Bear Case
+
+{% if report.bear_case %}
+{% for item in report.bear_case -%}
+- {{ item }}
+{% endfor %}
+{% else %}
+_No bear-case points recorded._
+{% endif %}
+
+## Risk Factors
+
+{% if report.risk_factors %}
+{% for item in report.risk_factors -%}
+- {{ item }}
+{% endfor %}
+{% else %}
+_No risk factors recorded._
+{% endif %}
+
+## Financial Metrics
+
+{% if report.financial_metrics %}
+| Metric | Value |
+|---|---|
+{% for name, value in report.financial_metrics.items() -%}
+| {{ name }} | {{ value }} |
+{% endfor %}
+{% else %}
+_No raw financial metrics recorded._
+{% endif %}
+
+## Calculated Metrics
+
+{% if report.derived_metrics %}
+| Metric | Formula | Current | Previous | Change | Unit |
+|---|---|---|---|---|---|
+{% for name, metric in report.derived_metrics.items() -%}
+| {{ metric.name or name }} | `{{ metric.formula }}` | {{ metric.current_value }} | {{ metric.previous_value if metric.previous_value is not none else "—" }} | {{ metric.change_percentage if metric.change_percentage is not none else "—" }} | {{ metric.unit }} |
+{% endfor %}
+{% else %}
+_No calculated metrics recorded._
+{% endif %}
+
+## Evidence Citations
+
+{% if report.evidence %}
+{% for item in report.evidence %}
+### {{ loop.index }}. {{ item.source }} ({{ item.source_type.value if item.source_type.value is defined else item.source_type }})
+
+- **Claim:** {{ item.claim or "—" }}
+- **Metric:** {{ item.metric or "—" }}{% if item.value is not none %} = {{ item.value }}{% endif %}
+- **Period:** {{ item.reporting_period or item.temporal_anchor or "—" }}
+- **Confidence:** {{ "%.2f"|format(item.confidence) }}
+- **URL / filing:** {{ item.source_url or "—" }}
+{% if item.raw_text %}
+
+> {{ item.raw_text }}
+{% endif %}
+{% endfor %}
+{% else %}
+_No evidence citations recorded._
+{% endif %}
+
+{% if report.data_quality_warnings %}
+## Data Quality Warnings
+
+{% for warning in report.data_quality_warnings -%}
+- {{ warning }}
+{% endfor %}
+{% endif %}

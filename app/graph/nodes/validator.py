@@ -3,13 +3,21 @@ import re
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Set
 
-from app.api.schemas.reports import Evidence, RawMetric, SourceType, ValidationIssue, ValidationResult
+from app.api.schemas.reports import (
+    Evidence,
+    RawMetric,
+    SourceType,
+    ValidationIssue,
+    ValidationResult,
+)
 from app.graph.quality import missing_source_warnings
 from app.graph.state import ResearchState
 from app.infrastructure.llm.provider import LLMProviderFactory, SemanticAudit
 
 
-def run_deterministic_validation(raw_metrics: List[RawMetric], required_metrics: List[str]) -> List[ValidationIssue]:
+def run_deterministic_validation(
+    raw_metrics: List[RawMetric], required_metrics: List[str]
+) -> List[ValidationIssue]:
     issues: List[ValidationIssue] = []
 
     present_metric_names = {m.name for m in raw_metrics}
@@ -83,7 +91,9 @@ def _years_in(text: Optional[str]) -> Set[str]:
     return set(re.findall(r"20\d{2}", text))
 
 
-def _temporal_and_conflict_issues(evidence: List[Evidence], requested_periods: List[str]) -> List[ValidationIssue]:
+def _temporal_and_conflict_issues(
+    evidence: List[Evidence], requested_periods: List[str]
+) -> List[ValidationIssue]:
     issues: List[ValidationIssue] = []
     wanted_years = set()
     for period in requested_periods:
@@ -94,7 +104,10 @@ def _temporal_and_conflict_issues(evidence: List[Evidence], requested_periods: L
         period = item.reporting_period or item.temporal_anchor
         item_years = _years_in(period) | _years_in(item.raw_text)
         if wanted_years and item_years and item_years.isdisjoint(wanted_years):
-            if item.source_type in {SourceType.NEWS, SourceType.INTERNAL_DOCUMENT} or item.value is None:
+            if (
+                item.source_type in {SourceType.NEWS, SourceType.INTERNAL_DOCUMENT}
+                or item.value is None
+            ):
                 issues.append(
                     ValidationIssue(
                         field=item.evidence_id,
@@ -175,7 +188,11 @@ async def validator_node(state: ResearchState) -> Dict[str, Any]:
     max_iterations = state.get("max_iterations", 2)
     plan = state.get("plan")
     evidence: List[Evidence] = state.get("evidence") or []
-    required = plan.required_raw_metrics if plan else ["Revenue", "GrossProfit", "OperatingIncome", "NetIncome"]
+    required = (
+        plan.required_raw_metrics
+        if plan
+        else ["Revenue", "GrossProfit", "OperatingIncome", "NetIncome"]
+    )
     requested_periods = plan.periods_to_fetch if plan else []
 
     raw_metrics = list(state.get("raw_financial_data") or []) or _evidence_to_raw_metrics(evidence)
@@ -219,7 +236,9 @@ async def validator_node(state: ResearchState) -> Dict[str, Any]:
 
     source_warnings = missing_source_warnings(evidence)
     status = "passed" if is_validated else "failed"
-    if is_validated and (source_warnings or any(issue.severity == "WARNING" for issue in all_issues)):
+    if is_validated and (
+        source_warnings or any(issue.severity == "WARNING" for issue in all_issues)
+    ):
         status = "warning"
 
     return {

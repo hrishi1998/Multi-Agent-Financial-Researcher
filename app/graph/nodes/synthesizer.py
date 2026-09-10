@@ -15,7 +15,9 @@ Hard rules:
 """
 
 
-def _fallback_synthesis(evidence: List[Evidence], calculated: Dict[str, CalculatedMetric], ticker: str) -> SynthesisOutput:
+def _fallback_synthesis(
+    evidence: List[Evidence], calculated: Dict[str, CalculatedMetric], ticker: str
+) -> SynthesisOutput:
     cited = [item.evidence_id for item in evidence[:8]]
     findings = [
         f"{metric.name}: {metric.current_value}{metric.unit} (pre-computed)"

@@ -33,7 +33,9 @@ async def web_researcher_node(state: ResearchState) -> Dict[str, Any]:
     plan = state.get("plan")
     ticker = plan.ticker if plan else "AAPL"
     company = plan.company_name if plan else ticker
-    questions = " ".join(plan.target_questions) if plan and plan.target_questions else "earnings outlook"
+    questions = (
+        " ".join(plan.target_questions) if plan and plan.target_questions else "earnings outlook"
+    )
     query = f"{company} {questions} profitability revenue growth"
 
     try:

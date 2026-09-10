@@ -19,7 +19,9 @@ class ResearchPlan(BaseModel):
     ticker: str
     company_name: str
     periods_to_fetch: List[str]  # e.g., ["Q1 2025", "Q2 2025", "Q3 2025", "Q4 2025"]
-    required_raw_metrics: List[str]  # ["Revenue", "GrossProfit", "OperatingIncome", "NetIncome", "EPS"]
+    required_raw_metrics: List[
+        str
+    ]  # ["Revenue", "GrossProfit", "OperatingIncome", "NetIncome", "EPS"]
     target_questions: List[str]
     max_retries: int = 2
 

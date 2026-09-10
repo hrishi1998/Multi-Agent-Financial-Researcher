@@ -27,6 +27,7 @@ The compiled LangGraph workflow is:
 - **Data Sources:** SEC EDGAR (XBRL / 10-K / 10-Q), Market Data APIs
 - **Observability:** LangSmith, OpenTelemetry
 - **Load testing:** Locust (dev extra)
+- **Frontend:** Streamlit dashboard (SSE + HITL) at `frontend/`
 
 ## Performance & Benchmarks
 
@@ -64,3 +65,16 @@ The headless Locust profile is **50 users**, spawn rate **10/s**, duration **1 m
 **Workers.** `ResearchRunManager` keeps run status in process memory. With `--workers 4` and a non-sticky load balancer, a poll can hit a different worker than the `POST` and return 404. For an accurate lifecycle measurement on this codebase, start the API with `--workers 1` (or put a shared run store in front). `--workers 4` is appropriate once run state is shared across processes.
 
 If `API_KEY` is set on the API, export the same value in the Locust shell so `FinancialAnalystUser` sends `X-API-Key`.
+
+## Frontend
+
+The Streamlit console is an HTTP-only client (`frontend/`). It does not import LangGraph or the backend package.
+
+```bash
+export LLM_PROVIDER=mock
+export API_BASE_URL=http://localhost:8000
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+cd frontend && pip install -r requirements.txt && streamlit run app.py
+```
+
+Docker Compose starts the dashboard on port `8501` with `API_BASE_URL=http://api:8000`. If the API has `API_KEY` set, export the same value for Streamlit so requests send `X-API-Key`.

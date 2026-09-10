@@ -45,6 +45,9 @@ Thumbs.db
 # Local study notes (not part of the product)
 markdown-knowledge/
 
+# Generated batch research artifacts
+outputs/
+
 # Locust benchmark artifacts
 benchmark_results*.csv
 benchmark_results*.html

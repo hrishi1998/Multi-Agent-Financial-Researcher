@@ -24,9 +24,8 @@ def psycopg_url(dsn: Optional[str] = None) -> Optional[str]:
     url = dsn or os.getenv("DATABASE_URL")
     if not url:
         return None
-    return (
-        url.replace("postgresql+asyncpg://", "postgresql://", 1)
-        .replace("postgres+asyncpg://", "postgresql://", 1)
+    return url.replace("postgresql+asyncpg://", "postgresql://", 1).replace(
+        "postgres+asyncpg://", "postgresql://", 1
     )
 
 

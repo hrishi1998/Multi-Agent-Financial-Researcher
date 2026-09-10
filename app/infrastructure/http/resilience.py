@@ -28,8 +28,7 @@ class CircuitOpenError(Exception):
 class ProviderRateLimiter:
     def __init__(self, limits: Dict[str, int] | None = None) -> None:
         self._semaphores = {
-            name: asyncio.Semaphore(limit)
-            for name, limit in (limits or PROVIDER_LIMITS).items()
+            name: asyncio.Semaphore(limit) for name, limit in (limits or PROVIDER_LIMITS).items()
         }
 
     def semaphore(self, provider_name: str) -> asyncio.Semaphore:
@@ -75,7 +74,9 @@ def _backoff_seconds(attempt: int) -> float:
 
 
 def _is_retryable(exc: BaseException) -> bool:
-    if isinstance(exc, (asyncio.TimeoutError, httpx.ConnectTimeout, httpx.ReadTimeout, httpx.TimeoutException)):
+    if isinstance(
+        exc, (asyncio.TimeoutError, httpx.ConnectTimeout, httpx.ReadTimeout, httpx.TimeoutException)
+    ):
         return True
     if isinstance(exc, httpx.HTTPStatusError):
         return exc.response.status_code in RETRYABLE_STATUS

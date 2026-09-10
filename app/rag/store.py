@@ -64,9 +64,7 @@ class InMemoryVectorStore(VectorStore):
             score = _cosine(query_vec, chunk.embedding)
             match = period is None or chunk.metadata.financial_period == period
             annotated = chunk.model_copy(deep=True)
-            annotated.temporal_warning = _temporal_warning(
-                chunk.metadata.financial_period, period
-            )
+            annotated.temporal_warning = _temporal_warning(chunk.metadata.financial_period, period)
             ranked.append((0 if match else 1, -score, annotated))
 
         ranked.sort(key=lambda item: (item[0], item[1]))

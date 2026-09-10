@@ -54,11 +54,7 @@ class PostgresSemanticCacheStore:
 
         query_vec = await self.embedder.embed_text(query)
         distance = CachedQueryTable.query_embedding.cosine_distance(query_vec)
-        stmt = (
-            select(CachedQueryTable, distance.label("distance"))
-            .order_by(distance)
-            .limit(1)
-        )
+        stmt = select(CachedQueryTable, distance.label("distance")).order_by(distance).limit(1)
         async with get_session_factory()() as session:
             row = (await session.execute(stmt)).first()
         if row is None:

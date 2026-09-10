@@ -103,7 +103,9 @@ def _mock_research_plan(text: str) -> ResearchPlan:
 
 
 def _extract_ids(text: str) -> List[str]:
-    return re.findall(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", text, flags=re.IGNORECASE)
+    return re.findall(
+        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", text, flags=re.IGNORECASE
+    )
 
 
 def _mock_synthesis(text: str) -> SynthesisOutput:

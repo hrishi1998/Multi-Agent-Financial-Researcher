@@ -11,7 +11,10 @@ from pydantic import BaseModel, Field
 
 
 def api_base_url() -> str:
-    return os.getenv("API_BASE_URL", "http://localhost:8000").rstrip("/")
+    raw = os.getenv("API_BASE_URL", "http://localhost:8000").rstrip("/")
+    if raw.startswith(("http://", "https://")):
+        return raw
+    return f"http://{raw}"
 
 
 def api_headers() -> dict[str, str]:

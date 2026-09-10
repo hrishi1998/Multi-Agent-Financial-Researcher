@@ -21,9 +21,7 @@ def _evidence_lines(item: dict) -> str:
 
 
 def render_hitl_tab() -> None:
-    st.markdown(
-        "Look up a paused graph, inspect collected evidence, and resume synthesis."
-    )
+    st.markdown("Look up a paused graph, inspect collected evidence, and resume synthesis.")
     default_run = st.session_state.get("hitl_run_id") or st.session_state.get("last_run_id") or ""
     run_id = st.text_input("Paused run ID", value=default_run)
     load = st.button("Load paused state")

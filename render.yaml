@@ -1,0 +1,72 @@
+# Render Blueprint: FastAPI + Streamlit + Postgres + Redis
+# Deploy from the dashboard with "New Blueprint Instance".
+
+databases:
+  - name: quant-research-db
+    databaseName: quant_research
+    user: quant
+    plan: free
+    postgresMajorVersion: "16"
+
+services:
+  - type: redis
+    name: quant-research-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+  - type: web
+    name: quant-research-api
+    runtime: docker
+    dockerfilePath: ./docker/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: quant-research-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: quant-research-redis
+          type: redis
+          property: connectionString
+      - key: LLM_PROVIDER
+        value: mock
+      - key: USE_REDIS
+        value: "1"
+      - key: USE_PGVECTOR
+        value: "0"
+      - key: VECTOR_DIM
+        value: "64"
+      - key: ENABLE_HITL
+        value: "0"
+      - key: ENABLE_SEMANTIC_CACHE
+        value: "0"
+      - key: ENABLE_TELEMETRY
+        value: "0"
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+  - type: web
+    name: quant-research-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: API_BASE_URL
+        fromService:
+          name: quant-research-api
+          type: web
+          property: hostport
+      - fromService:
+          name: quant-research-api
+          type: web
+          envVarKey: API_KEY

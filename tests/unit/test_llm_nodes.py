@@ -99,7 +99,9 @@ async def test_synthesizer_cites_evidence_and_fills_cases():
     assert synthesis.bull_case
     assert synthesis.bear_case
     assert synthesis.cited_evidence_ids
-    assert set(synthesis.cited_evidence_ids) <= {item.evidence_id for item in evidence} | {"unspecified"}
+    assert set(synthesis.cited_evidence_ids) <= {item.evidence_id for item in evidence} | {
+        "unspecified"
+    }
 
 
 @pytest.mark.asyncio

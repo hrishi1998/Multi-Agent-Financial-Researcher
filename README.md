@@ -1,5 +1,7 @@
 # Async Multi-Agent Quantitative Research Analyst
 
+![CI Status](https://github.com/hrishi1998/Multi-Agent-Financial-Researcher/actions/workflows/ci.yml/badge.svg)
+
 An asynchronous quantitative research engine that accepts company valuation and performance questions, gathers SEC filings and market evidence concurrently, enforces deterministic validation, and synthesizes auditable investment-research reports while streaming execution progress via SSE.
 
 ## Key Architectural Principles
@@ -10,6 +12,23 @@ An asynchronous quantitative research engine that accepts company valuation and 
 - **Real-time Streaming:** Native Server-Sent Events (SSE) stream state transitions, validation warnings, and sub-agent progress to the client.
 
 ## Architecture
+
+```mermaid
+flowchart LR
+    User["User"] --> UI["Streamlit UI"]
+    UI -->|"REST & SSE"| API["FastAPI"]
+    API --> RM["Run Manager"]
+    API --> Redis["Redis<br/>state / pub-sub"]
+    RM --> Redis
+    RM --> Graph["LangGraph state machine"]
+    Graph --> Researchers["Parallel researchers<br/>SEC · Market · Web · RAG"]
+    Researchers --> Validator["Deterministic validator"]
+    Validator -->|"retry / cyclic loop"| Graph
+    Validator -->|"validated state"| Quant["Quant engine"]
+    Quant --> Synth["LLM synthesizer"]
+    Synth --> Formatter["Formatter"]
+    Formatter --> UI
+```
 
 The compiled LangGraph workflow is:
 
@@ -78,3 +97,9 @@ cd frontend && pip install -r requirements.txt && streamlit run app.py
 ```
 
 Docker Compose starts the dashboard on port `8501` with `API_BASE_URL=http://api:8000`. If the API has `API_KEY` set, export the same value for Streamlit so requests send `X-API-Key`.
+
+## CI/CD & Cloud Deploy
+
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main` and on pull requests. Jobs use `LLM_PROVIDER=mock` with empty `DATABASE_URL` / `REDIS_URL` so lint, `pytest tests/`, and `python scripts/run_evals.py` stay offline. A non-zero eval exit code fails the build.
+
+One-click PaaS deploy uses the Render Blueprint in `render.yaml` (FastAPI, Streamlit, Postgres, Redis). From the Render dashboard: **New Blueprint Instance** and point it at this repo. Set `API_KEY` / provider keys in the dashboard if you want live LLMs; the API defaults to `LLM_PROVIDER=mock`.

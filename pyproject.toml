@@ -63,6 +63,19 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+# Historical style (PEP 585/604 annotations, import sorting) is not a merge gate.
+# Ruff still fails the build on unused imports, syntax, and real bugbear issues.
+ignore = [
+    "E501",
+    "I001",
+    "UP006",
+    "UP017",
+    "UP034",
+    "UP035",
+    "UP041",
+    "UP042",
+    "UP045",
+]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

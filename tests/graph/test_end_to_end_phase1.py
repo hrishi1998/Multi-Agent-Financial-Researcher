@@ -19,7 +19,9 @@ async def test_phase1_pipeline_emits_typed_research_report():
     assert isinstance(result["final_report"], ResearchReport)
     assert result["final_report"].ticker == "NVDA"
     assert result["calculated_metrics"]
-    assert any(isinstance(metric, CalculatedMetric) for metric in result["calculated_metrics"].values())
+    assert any(
+        isinstance(metric, CalculatedMetric) for metric in result["calculated_metrics"].values()
+    )
     assert "Mock_Margin" in result["calculated_metrics"]
     assert result["final_report"].derived_metrics
 

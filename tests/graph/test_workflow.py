@@ -27,9 +27,7 @@ async def test_compiled_graph_fans_out_and_aggregates_evidence():
         "Web / News",
         "Internal RAG / Filings Archive",
     }
-    financial_metrics = {
-        item.metric for item in result["evidence"] if item.source == "SEC EDGAR"
-    }
+    financial_metrics = {item.metric for item in result["evidence"] if item.source == "SEC EDGAR"}
     assert {"Revenue", "GrossProfit"} <= financial_metrics
 
     completed_nodes = {entry["node"] for entry in result["execution_trace"]}

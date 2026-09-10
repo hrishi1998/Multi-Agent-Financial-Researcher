@@ -45,7 +45,9 @@ async def test_sec_429_retries_then_succeeds(monkeypatch: pytest.MonkeyPatch):
     async def flaky(self, ticker: str, periods_count: int = 4):
         attempts["n"] += 1
         if attempts["n"] == 1:
-            request = httpx.Request("GET", "https://data.sec.gov/api/xbrl/companyfacts/CIK0000000000.json")
+            request = httpx.Request(
+                "GET", "https://data.sec.gov/api/xbrl/companyfacts/CIK0000000000.json"
+            )
             response = httpx.Response(429, request=request)
             raise httpx.HTTPStatusError("Too Many Requests", request=request, response=response)
         return [
@@ -84,7 +86,9 @@ async def test_partial_researcher_dropout_still_completes(monkeypatch: pytest.Mo
     warnings = result["final_report"].data_quality_warnings
     assert warnings
     assert any("market" in warning.lower() for warning in warnings)
-    validator_entries = [entry for entry in result["execution_trace"] if entry["node"] == "validator"]
+    validator_entries = [
+        entry for entry in result["execution_trace"] if entry["node"] == "validator"
+    ]
     assert any(entry["status"] == "warning" for entry in validator_entries)
     assert result["execution_trace"][-1]["node"] == "formatter"
 
@@ -95,7 +99,9 @@ async def test_non_retryable_invalid_ticker_does_not_loop(monkeypatch: pytest.Mo
 
     async def not_found(self, ticker: str, periods_count: int = 4):
         attempts["n"] += 1
-        request = httpx.Request("GET", "https://data.sec.gov/api/xbrl/companyfacts/CIK0000000000.json")
+        request = httpx.Request(
+            "GET", "https://data.sec.gov/api/xbrl/companyfacts/CIK0000000000.json"
+        )
         response = httpx.Response(404, request=request)
         raise httpx.HTTPStatusError("Not Found", request=request, response=response)
 
@@ -113,5 +119,8 @@ async def test_non_retryable_invalid_ticker_does_not_loop(monkeypatch: pytest.Mo
     assert result["plan"].ticker == "INVALID_TICKER_999"
     assert attempts["n"] == 2
     assert result["final_report"] is not None
-    assert any("SEC" in warning or "filing" in warning.lower() for warning in result["final_report"].data_quality_warnings)
+    assert any(
+        "SEC" in warning or "filing" in warning.lower()
+        for warning in result["final_report"].data_quality_warnings
+    )
     assert result["iteration_count"] == 2

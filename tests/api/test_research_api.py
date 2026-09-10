@@ -74,7 +74,9 @@ async def test_sse_stream_emits_typed_agent_events():
         run_id = created.json()["run_id"]
 
         buffer = ""
-        async with client.stream("GET", f"/api/v1/research/{run_id}/stream", timeout=30.0) as stream:
+        async with client.stream(
+            "GET", f"/api/v1/research/{run_id}/stream", timeout=30.0
+        ) as stream:
             async for chunk in stream.aiter_text():
                 buffer += chunk
                 if "run.completed" in buffer or "run.failed" in buffer:
@@ -90,7 +92,10 @@ async def test_sse_stream_emits_typed_agent_events():
             assert frame["data"]["run_id"] == run_id
             assert "event_type" in frame["data"]
             assert "agent" in frame["data"]
-            assert "updated_keys" in frame["data"].get("payload", {}) or frame["data"]["agent"] == "run_manager"
+            assert (
+                "updated_keys" in frame["data"].get("payload", {})
+                or frame["data"]["agent"] == "run_manager"
+            )
 
 
 @pytest.mark.asyncio

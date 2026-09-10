@@ -65,14 +65,9 @@ class NumericalAccuracyEvaluator:
             else:
                 matching += 1
 
-        evidence_metrics = {
-            _normalize(item.metric)
-            for item in report.evidence
-            if item.metric
-        }
+        evidence_metrics = {_normalize(item.metric) for item in report.evidence if item.metric}
         allowed = {
-            _normalize(name)
-            for name in list(case.canonical_metrics) + list(case.canonical_derived)
+            _normalize(name) for name in list(case.canonical_metrics) + list(case.canonical_derived)
         }
         allowed.update({"grossmargin", "operatingmargin", "mockmargin"})
         phantom = []

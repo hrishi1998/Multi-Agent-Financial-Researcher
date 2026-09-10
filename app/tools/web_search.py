@@ -86,10 +86,14 @@ class WebSearchClient:
                 "snippet": str(item.get("snippet") or ""),
                 "published_date": str(item.get("date") or ""),
             }
-            for item in (payload.get("news_results") or payload.get("organic_results") or [])[:max_results]
+            for item in (payload.get("news_results") or payload.get("organic_results") or [])[
+                :max_results
+            ]
         ]
 
-    async def _search_duckduckgo(self, ticker: str, query: str, max_results: int) -> List[Dict[str, str]]:
+    async def _search_duckduckgo(
+        self, ticker: str, query: str, max_results: int
+    ) -> List[Dict[str, str]]:
         q = f"{ticker} {query} earnings news"
         async with httpx.AsyncClient(
             timeout=self.timeout, headers=self.headers, follow_redirects=True

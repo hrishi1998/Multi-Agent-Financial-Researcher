@@ -11,9 +11,7 @@ from app.services.exporter import ReportExporter
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_QUERY_TEMPLATE = (
-    "Evaluate the financial performance of {ticker} over the last 4 quarters"
-)
+DEFAULT_QUERY_TEMPLATE = "Evaluate the financial performance of {ticker} over the last 4 quarters"
 DEFAULT_CONCURRENCY = 5
 
 
@@ -61,9 +59,7 @@ class BatchResearchManager:
         job_id = batch_id or str(uuid4())
         unique = [ticker.strip().upper() for ticker in tickers if ticker and ticker.strip()]
         tasks = [
-            asyncio.create_task(
-                self._run_ticker(job_id, ticker, query_template, output_dir)
-            )
+            asyncio.create_task(self._run_ticker(job_id, ticker, query_template, output_dir))
             for ticker in unique
         ]
         results = await asyncio.gather(*tasks, return_exceptions=True)

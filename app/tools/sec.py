@@ -105,4 +105,4 @@ class SECClient:
                         )
                     )
 
-        return raw_metrics 
+        return raw_metrics

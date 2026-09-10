@@ -30,7 +30,9 @@ def map_node_update(
         is_validated = bool(update.get("is_validated")) if isinstance(update, dict) else False
         event_type = EventType.VALIDATION_PASSED if is_validated else EventType.VALIDATION_WARNING
         status = "COMPLETED" if is_validated else "WARNING"
-        message = "Validation passed." if is_validated else "Validation requires another research pass."
+        message = (
+            "Validation passed." if is_validated else "Validation requires another research pass."
+        )
 
     if event_type is None:
         event_type = EventType.SYNTHESIS_COMPLETED
